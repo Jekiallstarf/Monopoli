@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perbendaharaan Kerajaan</title>
+  <script>
+    let players = [
+      { name: "Airlangga", balance: 1500, history: [] },
+      { name: "Dewi Tara", balance: 1500, history: [] },
+      { name: "Hayam Wuruk", balance: 1500, history: [] }
+    ];
+
+    function updateDisplay() {
+      const list = document.getElementById("player-list");
+      list.innerHTML = "";
+      players.forEach((player, index) => {
+        const item = document.createElement("div");
+        item.className = "border p-2 mb-4 rounded bg-white shadow";
+        const historyHtml = player.history.slice(-5).map(entry => `<div class='text-sm text-gray-600'>${entry}</div>`).join("");
+        item.innerHTML = `
+          <strong>${player.name}</strong><br>
+          Perbendaharaan: <span id="balance-${index}">${player.balance}</span> koin <br>
+          <input type="number" id="custom-${index}" placeholder="Nominal" style="width: 80px;">
+          <button onclick="adjustCustom(${index}, true)">+ Tambah</button>
+          <button onclick="adjustCustom(${index}, false)">- Kurangi</button>
+          <br>
+          <button onclick="adjustBalance(${index}, -100, 'Pajak Laut')">Pajak Laut (-100)</button>
+          <button onclick="adjustBalance(${index}, -200, 'Pajak Dagang')">Pajak Dagang (-200)</button>
+          <button onclick="adjustBalance(${index}, 200, 'Hadiah Ekspedisi')">Hadiah Ekspedisi (+200)</button>
+          <div class="mt-2"><em>Riwayat Transaksi:</em>${historyHtml}</div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function adjustBalance(index, amount, reason = '') {
+      players[index].balance += amount;
+      const sign = amount > 0 ? '+' : '';
+      const entry = `${sign}${amount} koin ${reason ? `(${reason})` : ''}`;
+      players[index].history.push(entry);
+      updateDisplay();
+    }
+
+    function adjustCustom(index, isAdd) {
+      const input = document.getElementById(`custom-${index}`);
+      let value = parseInt(input.value);
+      if (!isNaN(value)) {
+        if (!isAdd) value *= -1;
+        adjustBalance(index, value, isAdd ? 'Penyesuaian Tambah' : 'Penyesuaian Kurang');
+      }
+    }
+
+    function addPlayer() {
+      const name = prompt("Nama pemain baru?");
+      if (name) {
+        players.push({ name, balance: 1500, history: [] });
+        updateDisplay();
+      }
+    }
+
+    window.onload = updateDisplay;
+  </script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f4f8;
+      padding: 2rem;
+    }
+    button {
+      margin: 2px;
+      padding: 0.25rem 0.5rem;
+    }
+    input[type="number"] {
+      padding: 0.2rem;
+      margin-right: 5px;
+    }
+    .text-sm {
+      font-size: 0.85rem;
+    }
+    .text-gray-600 {
+      color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+  <h1>💰 Perbendaharaan Kerajaan</h1>
+  <button onclick="addPlayer()">➕ Tambah Pemain</button>
+  <div id="player-list" class="mt-4"></div>
+</body>
+</html>
